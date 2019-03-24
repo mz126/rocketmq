@@ -732,4 +732,8 @@ public class BrokerConfig {
     public void setWaitTimeMillsInTransactionQueue(long waitTimeMillsInTransactionQueue) {
         this.waitTimeMillsInTransactionQueue = waitTimeMillsInTransactionQueue;
     }
+
+    public static void main(String[] args) {
+        System.out.println(localHostName());
+    }
 }
