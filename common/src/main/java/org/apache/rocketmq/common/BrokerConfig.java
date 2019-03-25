@@ -16,8 +16,9 @@
  */
 package org.apache.rocketmq.common;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
+
 import org.apache.rocketmq.common.annotation.ImportantField;
 import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.common.constant.PermName;
@@ -733,7 +734,25 @@ public class BrokerConfig {
         this.waitTimeMillsInTransactionQueue = waitTimeMillsInTransactionQueue;
     }
 
-    public static void main(String[] args) {
-        System.out.println(localHostName());
+    public static void main(String[] args) throws Exception {
+//        System.out.println(localHostName());
+
+        InetAddress localHost = InetAddress.getLocalHost();
+        System.out.println(localHost);
+        System.out.println(localHost.getHostAddress());
+        System.out.println(localHost.getHostName());
+
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+        while(networkInterfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = networkInterfaces.nextElement();
+            System.out.println("=" + networkInterface);
+            Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+
+            while(inetAddresses.hasMoreElements()) {
+                InetAddress inetAddress = inetAddresses.nextElement();
+                System.out.println("===inetAddress:" + inetAddress+",ipv6=" + (inetAddress instanceof Inet6Address)+",ipv4="+(inetAddress instanceof Inet4Address));
+            }
+        }
     }
+
 }
