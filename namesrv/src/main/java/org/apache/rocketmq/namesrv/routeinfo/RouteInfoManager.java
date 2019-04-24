@@ -212,21 +212,26 @@ public class RouteInfoManager {
         queueData.setTopicSynFlag(topicConfig.getTopicSysFlag());
 
         List<QueueData> queueDataList = this.topicQueueTable.get(topicConfig.getTopicName());
+
+        //没有记录过topicName的队列数据，新增
         if (null == queueDataList) {
             queueDataList = new LinkedList<QueueData>();
             queueDataList.add(queueData);
             this.topicQueueTable.put(topicConfig.getTopicName(), queueDataList);
             log.info("new topic registered, {} {}", topicConfig.getTopicName(), queueData);
         } else {
+            //已经存在该topicName的队列数据，需要更新
             boolean addNewOne = true;
 
             Iterator<QueueData> it = queueDataList.iterator();
             while (it.hasNext()) {
                 QueueData qd = it.next();
                 if (qd.getBrokerName().equals(brokerName)) {
+                    //如果已经存在，并且没有更新，忽略
                     if (qd.equals(queueData)) {
                         addNewOne = false;
                     } else {
+                        //有变化：需要更新；应对concurrent modification exception，先remove然后add
                         log.info("topic changed, {} OLD: {} NEW: {}", topicConfig.getTopicName(), qd,
                             queueData);
                         it.remove();
@@ -267,6 +272,7 @@ public class RouteInfoManager {
                 QueueData qd = it.next();
                 if (qd.getBrokerName().equals(brokerName)) {
                     int perm = qd.getPerm();
+                    //消除写入权限，测试见PermName.main。同NIO中SelectionKey位运算&～，|。
                     perm &= ~PermName.PERM_WRITE;
                     qd.setPerm(perm);
                     wipeTopicCnt++;
@@ -276,6 +282,8 @@ public class RouteInfoManager {
 
         return wipeTopicCnt;
     }
+
+
 
     public void unregisterBroker(
         final String clusterName,
@@ -415,11 +423,14 @@ public class RouteInfoManager {
         return null;
     }
 
+
+
     public void scanNotActiveBroker() {
         Iterator<Entry<String, BrokerLiveInfo>> it = this.brokerLiveTable.entrySet().iterator();
         while (it.hasNext()) {
             Entry<String, BrokerLiveInfo> next = it.next();
             long last = next.getValue().getLastUpdateTimestamp();
+            //心跳最后更新时间是2min前了，关闭通道
             if ((last + BROKER_CHANNEL_EXPIRED_TIME) < System.currentTimeMillis()) {
                 RemotingUtil.closeChannel(next.getValue().getChannel());
                 it.remove();
@@ -429,6 +440,11 @@ public class RouteInfoManager {
         }
     }
 
+    /**
+     * channel关闭后，清理相关元信息
+     * @param remoteAddr
+     * @param channel
+     */
     public void onChannelDestroy(String remoteAddr, Channel channel) {
         String brokerAddrFound = null;
         if (channel != null) {
@@ -550,6 +566,8 @@ public class RouteInfoManager {
         }
     }
 
+
+
     public void printAllPeriodically() {
         try {
             try {
@@ -598,6 +616,8 @@ public class RouteInfoManager {
         }
     }
 
+
+
     public byte[] getSystemTopicList() {
         TopicList topicList = new TopicList();
         try {
@@ -630,6 +650,8 @@ public class RouteInfoManager {
         return topicList.encode();
     }
 
+
+
     public byte[] getTopicsByCluster(String cluster) {
         TopicList topicList = new TopicList();
         try {
@@ -660,6 +682,7 @@ public class RouteInfoManager {
 
         return topicList.encode();
     }
+
 
     public byte[] getUnitTopics() {
         TopicList topicList = new TopicList();

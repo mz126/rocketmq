@@ -26,8 +26,10 @@ public class DataVersionTest {
     @Test
     public void testEquals() {
         DataVersion dataVersion = new DataVersion();
+        System.out.println(dataVersion);
         DataVersion other = new DataVersion();
         other.setTimestamp(dataVersion.getTimestamp());
+        System.out.println(other);
         Assert.assertTrue(dataVersion.equals(other));
     }
 

@@ -21,6 +21,10 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+
+/**
+ * 配置文件管理：本地持久化与加载功能
+ */
 public abstract class ConfigManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
@@ -32,6 +36,7 @@ public abstract class ConfigManager {
             fileName = this.configFilePath();
             String jsonString = MixAll.file2String(fileName);
 
+            //读不到内容，从备份文件读取
             if (null == jsonString || jsonString.length() == 0) {
                 return this.loadBak();
             } else {

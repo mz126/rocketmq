@@ -29,6 +29,12 @@ import org.apache.rocketmq.common.MixAll;
 
 public class HttpTinyClient {
 
+
+    public static void main(String[] args) throws IOException {
+        HttpResult httpResult = httpGet("http://www.baidu.com", null, null, null, 1000);
+        System.out.println(httpResult);
+    }
+
     static public HttpResult httpGet(String url, List<String> headers, List<String> paramValues,
         String encoding, long readTimeoutMs) throws IOException {
         String encodedContent = encodingParams(paramValues, encoding);
@@ -133,4 +139,7 @@ public class HttpTinyClient {
             this.content = content;
         }
     }
+
+
+
 }

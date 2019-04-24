@@ -17,13 +17,21 @@
 package org.apache.rocketmq.remoting.protocol;
 
 import com.alibaba.fastjson.JSON;
+
 import java.nio.charset.Charset;
 
+
+/**
+ * 网络传输对象需序列化(object-json-bytes).
+ * 1.工具类：encode/decode
+ * 2.当前对象encode
+ */
 public abstract class RemotingSerializable {
     private final static Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 
     public static byte[] encode(final Object obj) {
         final String json = toJson(obj, false);
+        System.out.println("obj->json:" + json);
         if (json != null) {
             return json.getBytes(CHARSET_UTF8);
         }

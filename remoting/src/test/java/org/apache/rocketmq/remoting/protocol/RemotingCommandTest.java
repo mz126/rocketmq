@@ -19,6 +19,9 @@ package org.apache.rocketmq.remoting.protocol;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+
+import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
@@ -27,9 +30,18 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RemotingCommandTest {
+
+    @Test
+    public void t() {
+        InternalLogger logger = InternalLoggerFactory.getLogger(RemotingCommandTest.class);
+        logger.info("test");
+        System.out.println(Math.pow(2, 16));
+    }
     @Test
     public void testMarkProtocolType_JSONProtocolType() {
         int source = 261;
+        //00000000 00000000 00000001 00000101
+        System.out.println(Integer.toBinaryString(source));
         SerializeType type = SerializeType.JSON;
         byte[] result = RemotingCommand.markProtocolType(source, type);
         assertThat(result).isEqualTo(new byte[] {0, 0, 1, 5});
@@ -38,6 +50,8 @@ public class RemotingCommandTest {
     @Test
     public void testMarkProtocolType_ROCKETMQProtocolType() {
         int source = 16777215;
+        //00000000 11111111 11111111 11111111
+        System.out.println(Integer.toBinaryString(source));
         SerializeType type = SerializeType.ROCKETMQ;
         byte[] result = RemotingCommand.markProtocolType(source, type);
         assertThat(result).isEqualTo(new byte[] {1, -1, -1, -1});
@@ -110,6 +124,7 @@ public class RemotingCommandTest {
         CommandCustomHeader header = new SampleCommandCustomHeader();
         RemotingCommand cmd = RemotingCommand.createRequestCommand(code, header);
 
+        //121=4（length）+4（header length）+113（header data）
         ByteBuffer buffer = cmd.encode();
 
         //Simulate buffer being read in NettyDecoder
@@ -133,6 +148,7 @@ public class RemotingCommandTest {
         RemotingCommand cmd = RemotingCommand.createRequestCommand(code, header);
         cmd.setBody(new byte[] {0, 1, 2, 3, 4});
 
+        //126=4（length）+4（header length）+113（header data） + 5(body data)
         ByteBuffer buffer = cmd.encode();
 
         //Simulate buffer being read in NettyDecoder
@@ -156,6 +172,9 @@ public class RemotingCommandTest {
         RemotingCommand cmd = RemotingCommand.createRequestCommand(code, header);
 
         cmd.addExtField("key", "value");
+
+        //header data
+        //{"code":103,"extFields":{"stringValue":"bilibili","intValue":"2333","booleanValue":"true","doubleValue":"0.618","key":"value","longValue":"23333333"},"flag":0,"language":"JAVA","opaque":0,"serializeTypeCurrentRPC":"JSON","version":2333}
 
         ByteBuffer buffer = cmd.encode();
 
@@ -211,6 +230,10 @@ class FieldTestClass {
 }
 
 class SampleCommandCustomHeader implements CommandCustomHeader {
+
+    //extFields
+  /*  private String name="";
+    private int age;*/
     @Override
     public void checkFields() throws RemotingCommandException {
     }

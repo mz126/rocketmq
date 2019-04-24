@@ -65,11 +65,13 @@ public abstract class InternalLoggerFactory {
             new Slf4jLoggerFactory();
         } catch (Throwable e) {
             //ignore
+            e.printStackTrace();
         }
         try {
             new InnerLoggerFactory();
         } catch (Throwable e) {
             //ignore
+            e.printStackTrace();
         }
     }
 

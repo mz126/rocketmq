@@ -18,6 +18,7 @@ package org.apache.rocketmq.remoting.protocol;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +50,8 @@ public class RemotingSerializableTest {
 
         String string = serializable.toJson();
 
+        System.out.println(string);
+
         assertThat(string).isEqualTo("{\"stringList\":[\"a\",\"o\",\"e\",\"i\",\"u\",\"v\"]}");
     }
 
@@ -68,16 +71,18 @@ public class RemotingSerializableTest {
 
         String prettyString = serializable.toJson(true);
 
+        System.out.println(prettyString);
+
         assertThat(prettyString).isEqualTo("{\n" +
-            "\t\"stringList\":[\n" +
-            "\t\t\"a\",\n" +
-            "\t\t\"o\",\n" +
-            "\t\t\"e\",\n" +
-            "\t\t\"i\",\n" +
-            "\t\t\"u\",\n" +
-            "\t\t\"v\"\n" +
-            "\t]\n" +
-            "}");
+                "\t\"stringList\":[\n" +
+                "\t\t\"a\",\n" +
+                "\t\t\"o\",\n" +
+                "\t\t\"e\",\n" +
+                "\t\t\"i\",\n" +
+                "\t\t\"u\",\n" +
+                "\t\t\"v\"\n" +
+                "\t]\n" +
+                "}");
     }
 
 }
@@ -86,7 +91,7 @@ class Sample {
     private String stringValue = "string";
     private int intValue = 2333;
     private Integer integerValue = 666;
-    private double[] doubleArray = new double[] {0.618, 1.618};
+    private double[] doubleArray = new double[]{0.618, 1.618};
     private List<String> stringList = Arrays.asList("a", "o", "e", "i", "u", "v");
 
     public String getStringValue() {

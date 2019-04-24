@@ -19,7 +19,7 @@ package org.apache.rocketmq.remoting.netty;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
-/**
+/** 通讯请求公共处理接口
  * Common remoting command processor
  */
 public interface NettyRequestProcessor {

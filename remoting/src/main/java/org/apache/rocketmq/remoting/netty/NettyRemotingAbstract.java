@@ -129,12 +129,15 @@ public abstract class NettyRemotingAbstract {
     /**
      * Entry of incoming command processing.
      *
+     * remote peer:远程对等方
+     *
      * <p>
      * <strong>Note:</strong>
      * The incoming remoting command may be
      * <ul>
      * <li>An inquiry request from a remote peer component;</li>
      * <li>A response to a previous request issued by this very participant.</li>
+     * 对这个参与者先前发出的请求的响应
      * </ul>
      * </p>
      *
@@ -166,10 +169,12 @@ public abstract class NettyRemotingAbstract {
      */
     public void processRequestCommand(final ChannelHandlerContext ctx, final RemotingCommand cmd) {
         final Pair<NettyRequestProcessor, ExecutorService> matched = this.processorTable.get(cmd.getCode());
+        //请求码没有指定的请求处理器时，使用默认的
         final Pair<NettyRequestProcessor, ExecutorService> pair = null == matched ? this.defaultRequestProcessor : matched;
         final int opaque = cmd.getOpaque();
 
         if (pair != null) {
+
             Runnable run = new Runnable() {
                 @Override
                 public void run() {
@@ -180,6 +185,7 @@ public abstract class NettyRemotingAbstract {
                         }
 
                         final RemotingCommand response = pair.getObject1().processRequest(ctx, cmd);
+
                         if (rpcHook != null) {
                             rpcHook.doAfterResponse(RemotingHelper.parseChannelRemoteAddr(ctx.channel()), cmd, response);
                         }
@@ -240,6 +246,7 @@ public abstract class NettyRemotingAbstract {
                 }
             }
         } else {
+            //不支持的code
             String error = " request type " + cmd.getCode() + " not supported";
             final RemotingCommand response =
                 RemotingCommand.createResponseCommand(RemotingSysResponseCode.REQUEST_CODE_NOT_SUPPORTED, error);
@@ -384,6 +391,7 @@ public abstract class NettyRemotingAbstract {
                 }
             });
 
+            //同步调用，等待返回
             RemotingCommand responseCommand = responseFuture.waitResponse(timeoutMillis);
             if (null == responseCommand) {
                 if (responseFuture.isSendRequestOK()) {
@@ -407,12 +415,14 @@ public abstract class NettyRemotingAbstract {
         final int opaque = request.getOpaque();
         boolean acquired = this.semaphoreAsync.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);
         if (acquired) {
+            //TODO once作用？
             final SemaphoreReleaseOnlyOnce once = new SemaphoreReleaseOnlyOnce(this.semaphoreAsync);
             long costTime = System.currentTimeMillis() - beginStartTime;
             if (timeoutMillis < costTime) {
                 throw new RemotingTooMuchRequestException("invokeAsyncImpl call timeout");
             }
 
+            //异步调用，传入回调方法，待响应返回时触发执行。
             final ResponseFuture responseFuture = new ResponseFuture(channel, opaque, timeoutMillis - costTime, invokeCallback, once);
             this.responseTable.put(opaque, responseFuture);
             try {
@@ -482,7 +492,9 @@ public abstract class NettyRemotingAbstract {
 
     public void invokeOnewayImpl(final Channel channel, final RemotingCommand request, final long timeoutMillis)
         throws InterruptedException, RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException {
+
         request.markOnewayRPC();
+
         boolean acquired = this.semaphoreOneway.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);
         if (acquired) {
             final SemaphoreReleaseOnlyOnce once = new SemaphoreReleaseOnlyOnce(this.semaphoreOneway);

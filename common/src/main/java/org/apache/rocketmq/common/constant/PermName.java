@@ -50,4 +50,30 @@ public class PermName {
     public static boolean isInherited(final int perm) {
         return (perm & PERM_INHERIT) == PERM_INHERIT;
     }
+
+
+    public static void main(String[] args) {
+        System.out.println(PERM_INHERIT);
+        System.out.println(PERM_WRITE);
+        System.out.println(PERM_READ);
+        System.out.println(PERM_PRIORITY);
+
+        int perm = 6;
+        System.out.println("perm=" + perm + ",readable=" + isReadable(perm)+",writeable=" + isWriteable(perm));
+        System.out.println(perm2String(perm));
+
+
+        //wipe write
+        perm = perm & ~PermName.PERM_WRITE;
+        // ~ 0010
+        //--------
+        //   1101
+
+        //  0110
+        //& 1101
+        //------
+        //  0100
+        System.out.println("perm=" + perm + "," + perm2String(perm));
+    }
+
 }
